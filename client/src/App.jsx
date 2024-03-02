@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [events, setEvents] = useState([]);
+  const [error, setError] = useState(null);
+
+  const handleClick = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/getRecordedEvents");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status}`);
+      }
+
+      const eventData = await response.json();
+      setEvents(eventData);
+      setError(null);
+    } catch (error) {
+      setEvents([]);
+      setError(error.message || "Error fetching events");
+    }
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <button onClick={handleClick}>Display event data</button>
+      <div id="events">
+        {error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <ul>
+            {events.map((event, index) => (
+              <li key={index}>{JSON.stringify(event)}</li>
+            ))}
+          </ul>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
