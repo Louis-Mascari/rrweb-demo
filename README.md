@@ -1,4 +1,4 @@
-# rreweb-demo
+# rreweb-demo:
 
 1. `targetApp` is the application in which we want to record user sessions.
 2. `server` is our backend application to send and retrieve recordings from.
@@ -6,7 +6,7 @@
 
 Navigate to each directory, run `npm install`.
 
-To test:
+# Testing:
 
 1.  begin by navigating to `server` and running `npm run start` to start the express server to listen for events sent from `targetApp`.
 2.  navigate to `targetApp` and run `npm run dev` to begin the target application, as you interact with it, you should see the events being logged to the express server, at the moment this is setup to send events every 10 seconds, and immediately upon session being terminated (x out of tab). Can reopen tab at later time, and session replayer will consider that "inactive time".
