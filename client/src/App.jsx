@@ -1,10 +1,16 @@
 import { useState } from "react";
+import rrwebPlayer from "rrweb-player";
+import "rrweb-player/dist/style.css";
 
 function App() {
-  const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
 
   const handleClick = async () => {
+    let replayerDiv = document.getElementById("replayer");
+    if (replayerDiv.firstChild) {
+      replayerDiv.removeChild(replayerDiv.firstChild);
+    }
+
     try {
       const response = await fetch("http://localhost:3001/getRecordedEvents");
       if (!response.ok) {
@@ -12,28 +18,36 @@ function App() {
       }
 
       const eventData = await response.json();
-      setEvents(eventData);
+      if (eventData.length === 0) {
+        throw new Error("Event data is empty.");
+      }
+
+      const combinedEvents = eventData.reduce(
+        (allEvents, currentEvent) => allEvents.concat(currentEvent.events),
+        []
+      );
       setError(null);
+
+      new rrwebPlayer({
+        target: document.getElementById("replayer"),
+        props: {
+          events: combinedEvents,
+        },
+      });
     } catch (error) {
-      setEvents([]);
       setError(error.message || "Error fetching events");
     }
   };
 
   return (
     <>
-      <button onClick={handleClick}>Display event data</button>
-      <div id="events">
-        {error ? (
+      <button onClick={handleClick}>Display Session</button>
+      {error && (
+        <div id="error">
           <p style={{ color: "red" }}>{error}</p>
-        ) : (
-          <ul>
-            {events.map((event, index) => (
-              <li key={index}>{JSON.stringify(event)}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+        </div>
+      )}
+      <div id="replayer"></div>
     </>
   );
 }
