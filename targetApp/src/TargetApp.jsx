@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { record } from "rrweb";
+import { record, getRecordConsolePlugin } from "rrweb";
 
 const TargetApp = () => {
   let events = [];
@@ -8,7 +8,11 @@ const TargetApp = () => {
     const stopRecording = record({
       emit(event) {
         events.push(event);
+        const defaultLog = console.log["__rrweb_original__"]
+          ? console.log["__rrweb_original__"]
+          : console.log;
       },
+      plugins: [getRecordConsolePlugin()],
     });
 
     const saveEventsInterval = setInterval(save, 10000);
@@ -44,9 +48,14 @@ const TargetApp = () => {
 
   return (
     <>
-      <h1>Hello world!</h1>
-      <h3>Welcome to my site!</h3>
-      <input type="text"></input>
+      <h1 onClick={() => console.log("Hello world clicked")}>Hello world!</h1>
+      <h3 onClick={() => console.log("Welcome message clicked")}>
+        Welcome to my site!
+      </h3>
+      <input type="text" onChange={() => console.log("typed in input")}></input>
+      <button onClick={() => console.error(new Error())}>
+        Click for error
+      </button>
     </>
   );
 };
