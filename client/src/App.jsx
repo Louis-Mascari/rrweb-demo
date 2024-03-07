@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getReplayConsolePlugin } from "rrweb";
 import rrwebPlayer from "rrweb-player";
 import "rrweb-player/dist/style.css";
 
@@ -27,12 +28,17 @@ function App() {
         []
       );
       setError(null);
-
+      console.log(combinedEvents);
       new rrwebPlayer({
         target: document.getElementById("replayer"),
         props: {
           events: combinedEvents,
         },
+        plugins: [
+          getReplayConsolePlugin({
+            levels: ["info", "log", "warn", "error"],
+          }),
+        ],
       });
     } catch (error) {
       setError(error.message || "Error fetching events");
@@ -48,6 +54,7 @@ function App() {
         </div>
       )}
       <div id="replayer"></div>
+      <div id="console"></div>
     </>
   );
 }
