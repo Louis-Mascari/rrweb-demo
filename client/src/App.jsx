@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { getReplayConsolePlugin } from "rrweb";
-import rrwebPlayer from "rrweb-player";
-import "rrweb-player/dist/style.css";
+import { getReplayConsolePlugin, Replayer } from "rrweb";
+
+// import rrwebPlayer from "rrweb-player";
+// import "rrweb-player/dist/style.css";
 
 function App() {
   const [error, setError] = useState(null);
@@ -29,17 +30,27 @@ function App() {
       );
       setError(null);
       console.log(combinedEvents);
-      new rrwebPlayer({
-        target: document.getElementById("replayer"),
-        props: {
-          events: combinedEvents,
-        },
+      const replayer = new Replayer(combinedEvents, {
+        root: document.getElementById("replayer"),
         plugins: [
           getReplayConsolePlugin({
             levels: ["info", "log", "warn", "error"],
           }),
         ],
+        logger: document.getElementById("console"),
       });
+      replayer.play();
+      // new rrwebPlayer({
+      //   target: document.getElementById("replayer"),
+      //   props: {
+      //     events: combinedEvents,
+      //   },
+      //   plugins: [
+      //     getReplayConsolePlugin({
+      //       levels: ["info", "log", "warn", "error"],
+      //     }),
+      //   ],
+      // });
     } catch (error) {
       setError(error.message || "Error fetching events");
     }
