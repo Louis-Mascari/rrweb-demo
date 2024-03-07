@@ -37,7 +37,6 @@ function App() {
             levels: ["info", "log", "warn", "error"],
           }),
         ],
-        logger: document.getElementById("console"),
       });
       replayer.play();
       // new rrwebPlayer({
