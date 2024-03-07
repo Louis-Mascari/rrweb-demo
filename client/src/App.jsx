@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { getReplayConsolePlugin } from "rrweb";
+// import { getReplayConsolePlugin } from "rrweb";
 import rrwebPlayer from "rrweb-player";
 import "rrweb-player/dist/style.css";
 
 function App() {
   const [error, setError] = useState(null);
+  let initialTimeStamp;
+  let player;
 
   const handleClick = async () => {
     let replayerDiv = document.getElementById("replayer");
@@ -28,21 +30,21 @@ function App() {
         []
       );
       setError(null);
-      // console.log(combinedEvents);
-      const consoleEvents = extractConsoleEvents(combinedEvents);
-      // console.log(consoleEvents);
-      populateConsoleDiv(consoleEvents);
-      new rrwebPlayer({
+
+      initialTimeStamp = combinedEvents[0].timestamp;
+      player = new rrwebPlayer({
         target: document.getElementById("replayer"),
         props: {
           events: combinedEvents,
         },
-        plugins: [
-          getReplayConsolePlugin({
-            levels: ["info", "log", "warn", "error"],
-          }),
-        ],
+        // plugins: [
+        //   getReplayConsolePlugin({
+        //     levels: ["info", "log", "warn", "error"],
+        //   }),
+        // ],
       });
+      const consoleEvents = extractConsoleEvents(combinedEvents);
+      populateConsoleDiv(consoleEvents);
     } catch (error) {
       setError(error.message || "Error fetching events");
     }
@@ -57,9 +59,43 @@ function App() {
 
     eventsArr.forEach((event) => {
       const listItem = document.createElement("li");
-      listItem.textContent = event.data.payload.payload;
+      const relTime = relativeTime(event.timestamp);
+      listItem.textContent = `Time: ${formatTime(relTime)} ${
+        event.data.payload.payload
+      }`;
+
+      listItem.onclick = () => {
+        player.goto(Math.floor(relTime * 1000));
+      };
+
       list.appendChild(listItem);
     });
+  };
+
+  const relativeTime = (timestamp) => {
+    return (timestamp - initialTimeStamp) / 1000;
+  };
+
+  // Helper function to pad the number with zeros
+  const padWithZeros = (number, length) => {
+    let str = "" + number;
+    while (str.length < length) {
+      str = "0" + str;
+    }
+    return str;
+  };
+
+  // Function to convert seconds to the formatted time string (mm:ss)
+  const formatTime = (seconds) => {
+    const roundedSeconds = Math.floor(seconds);
+    const minutes = Math.floor(roundedSeconds / 60);
+    const remainingSeconds = roundedSeconds % 60;
+
+    // Pad minutes and seconds with zeros
+    const paddedMinutes = padWithZeros(minutes, 2);
+    const paddedSeconds = padWithZeros(remainingSeconds, 2);
+
+    return `${paddedMinutes}:${paddedSeconds}`;
   };
 
   return (
