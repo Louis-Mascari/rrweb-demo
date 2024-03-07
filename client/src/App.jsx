@@ -28,7 +28,10 @@ function App() {
         []
       );
       setError(null);
-      console.log(combinedEvents);
+      // console.log(combinedEvents);
+      const consoleEvents = extractConsoleEvents(combinedEvents);
+      // console.log(consoleEvents);
+      populateConsoleDiv(consoleEvents);
       new rrwebPlayer({
         target: document.getElementById("replayer"),
         props: {
@@ -45,6 +48,20 @@ function App() {
     }
   };
 
+  const extractConsoleEvents = (eventsArr) => {
+    return eventsArr.filter((obj) => obj.data.plugin === "rrweb/console@1");
+  };
+
+  const populateConsoleDiv = (eventsArr) => {
+    const list = document.getElementById("console-list");
+
+    eventsArr.forEach((event) => {
+      const listItem = document.createElement("li");
+      listItem.textContent = event.data.payload.payload;
+      list.appendChild(listItem);
+    });
+  };
+
   return (
     <>
       <button onClick={handleClick}>Display Session</button>
@@ -54,7 +71,9 @@ function App() {
         </div>
       )}
       <div id="replayer"></div>
-      <div id="console"></div>
+      <div id="console">
+        <ul id="console-list"></ul>
+      </div>
     </>
   );
 }
